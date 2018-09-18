@@ -7,8 +7,40 @@ import java.util.List;
 public class ClosestWords {
   static LinkedList<String> closestWords = new LinkedList<String>();
 
-
   int closestDistance = -1;
+
+  int[][] partDist1(String w1, String w2, int w1len, int w2len){
+    int[][] dist = new int[w1len+1][w2len+1];
+    int i, j, res, add, del;
+
+    for (i = 0; i <= w1len; i++)
+        dist[i][0] = i;
+    for (j = 0; j <= w2len; j++)
+        dist[0][j] = j;    
+
+    for (i = 1; i <= w1len; i++){
+        for (j = 1; j <= w2len; j++){
+          res = dist[i-1][j-1] + charCompare(w1, w2, i-1, j-1);
+          add = dist[i-1][j] + 1;
+          del = dist[i][j-1] + 1;
+          dist[i][j] = min(res, add, del); 
+        }
+    }
+
+    return dist;
+  }
+
+  int min(int res, int add, int del){
+    if (add < res)
+        return add;
+    else if(del < res)
+        return del;
+    return res;
+  }
+
+  int charCompare(String w1, String w2, int pos1, int pos2){
+      return (w1.charAt(pos1) == w2.charAt(pos2) ? 0 : 1);
+  }
 
   int partDist(String w1, String w2, int w1len, int w2len) {
     if (w1len == 0)
@@ -29,12 +61,24 @@ public class ClosestWords {
   int Distance(String w1, String w2) {
 //    return partDist(w1, w2, w1.length(), w2.length());
     int v = partDist(w1, w2, w1.length(), w2.length());
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 5; j++){
-            System.out.println(partDist(w1, w2, i, j) + " " + w1.substring(0,i) + " " + w2.substring(0,j));
+    System.out.println("OLD: ");
+    for (int i = 0; i <= w1.length(); i++){
+        for (int j = 0; j <= w2.length(); j++){
+            System.out.println(partDist(w1, w2, i, j)); //+ " " + w1.substring(0,i) + " " + w2.substring(0,j));
+        }
+
+        System.out.println();
+    }
+    System.out.println("NEW: ");
+    int test[][] = partDist1(w1, w2, w1.length(), w2.length());
+    for (int i = 0; i <=w1.length(); i++){
+        for (int j = 0; j <= w2.length(); j++){
+            System.out.println(test[i][j]);
         }
         System.out.println();
     }
+
+
   
     return v;
   }
