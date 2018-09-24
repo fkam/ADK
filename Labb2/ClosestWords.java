@@ -8,101 +8,49 @@ import java.lang.Math;
 public class ClosestWords {
   static LinkedList<String> closestWords = null;
   int closestDistance = -1;
-  int[][] dist = new int[41][41];
-  String prevWord = null;
+  int[][] m ;
+  String prevWord = " ";
   int tempMax = 40;
+  int start;
 
   int partDist1(String w1, String w2, int w1len, int w2len){
-    int i, j, res, add, del, start;
-    start = checkPrev(w2) -1;
-
-    for (i = 1; i <= w1len; i++){
+    int i, j, res, add, del;
+//    start = checkPrev(w1);
+    for (i = start; i <= w1len; i++){
         for (j = 1; j <= w2len; j++){
-          if (i <= start && j <= start && start != 1)
-            ;
-          else{
-            res = dist[i-1][j-1] + charCompare(w1, w2, i-1, j-1);
-            add = dist[i-1][j] + 1;
-            del = dist[i][j-1] + 1;
-            dist[i][j] = min(res, add, del); 
-          }
+          res = m[i-1][j-1] + (w1.charAt(i-1) == w2.charAt(j-1) ? 0 : 1);
+          add = m[i-1][j] + 1;
+          del = m[i][j-1] + 1;
+          m[i][j] = Math.min(del,Math.min(res, add));
         }
     }
-    return dist[w1len][w2len];
-  }
-
-  int checkPrev(String word){
-    int counter = 1, len;
-    if (prevWord == null){
-        prevWord = word;
-        return counter;
-    }
-    len = prevWord.length();
-    if (prevWord.length() >= word.length())
-        len = word.length();
-    for (int i = 0; i < len; i++){
-        if (charCompare(prevWord, word, i, i) == 0)
-            counter++;
-        else if (counter == 1){
-            prevWord = word;
-            return counter; 
-        } else 
-            return counter;
-    }
-    return counter; 
-  }
-
-  int min(int res, int add, int del){
-    return Math.min(Math.min(res, add), del);
-  }
-
-  int charCompare(String w1, String w2, int pos1, int pos2){
-      return (w1.charAt(pos1) == w2.charAt(pos2) ? 0 : 1);
-  }
-
-  int partDist(String w1, String w2, int w1len, int w2len) {
-    if (w1len == 0)
-      return w2len;
-    if (w2len == 0)
-      return w1len;
-    int res = partDist(w1, w2, w1len - 1, w2len - 1) + 
-	(w1.charAt(w1len - 1) == w2.charAt(w2len - 1) ? 0 : 1);
-    int addLetter = partDist(w1, w2, w1len - 1, w2len) + 1;
-    if (addLetter < res)
-      res = addLetter;
-    int deleteLetter = partDist(w1, w2, w1len, w2len - 1) + 1;
-    if (deleteLetter < res)
-      res = deleteLetter;
-    return res;
+    return m[w1len][w2len];
   }
 
   int Distance(String w1, String w2) {
     return partDist1(w1, w2, w1.length(), w2.length());
     }
 
-
-  
-
-  public ClosestWords(String w, List<String> wordList) {
-    
-    for (int i = 0; i <= 40; i++){
-        dist[i][0] = i;
-        dist[0][i] = i;
-    }
+  public ClosestWords(String w, List<String> wordList, int[][] matris) {
+       
+    m = matris;
 
     for (String s : wordList) {
-      int dist = Distance(w, s);
-      if( (Math.abs(w.length() - s.length()) > tempMax) )
-          ;
-      // System.out.println("d(" + w + "," + s + ")=" + dist);
-      else if (dist < closestDistance || closestDistance == -1) {
-        closestDistance = dist;
-        tempMax = dist;
-        closestWords = new LinkedList<String>();
-        closestWords.add(s);
+      if( (Math.abs(w.length() - s.length()) <= tempMax) ){
+        start = 0;
+        while (start < s.length() && start < prevWord.length() && s.charAt(start) == prevWord.charAt(start))
+            start++;
+        prevWord = s;
+        start++;    
+        int dist = Distance(s, w);      
+        if (dist < closestDistance || closestDistance == -1) {
+            closestDistance = dist;
+            tempMax = dist;
+            closestWords = new LinkedList<String>();
+            closestWords.add(s);
+        } else if (dist == closestDistance)
+            closestWords.add(s);
       }
-      else if (dist == closestDistance)
-        closestWords.add(s);
     }
   }
 
@@ -116,3 +64,4 @@ public class ClosestWords {
 
 
 }
+
